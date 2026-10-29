@@ -13,7 +13,7 @@ characters = []
 
 window = tk.Tk()
 window.title("Worldkeeper")
-window.geometry("700x500")
+window.geometry("720x580")
 
 # The menu bar sits at the top of every screen.
 menu_bar = tk.Frame(window, bg="#e8e8e8")
@@ -83,21 +83,67 @@ def clear_screen():
         widget.destroy()
 
 
+def add_info_box(parent, heading, lines, wrap):
+    # Builds one box with a bold heading and a few lines of text underneath.
+    box = tk.LabelFrame(parent, text=heading, font=("Arial", 11, "bold"), padx=10, pady=5)
+    box.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+    for line in lines:
+        tk.Label(box, text=line, wraplength=wrap, justify="left", anchor="w").pack(anchor="w", pady=2)
+
+
 def show_welcome():
-    # Shows the Welcome screen (screen 1).
+    # Shows the Welcome screen (screen 1). It explains the benefits, the costs, and the steps.
     clear_screen()
-    tk.Label(content, text="Welcome to Worldkeeper", font=("Arial", 20)).pack(pady=40)
+    tk.Label(content, text="Welcome to Worldkeeper", font=("Arial", 20)).pack(pady=(20, 0))
+    tk.Label(content, text="A notebook for the people in your fantasy world.").pack(pady=(0, 10))
+    boxes = tk.Frame(content)
+    boxes.pack(fill="x", padx=15)
+    add_info_box(boxes, "What it does for you", [
+        "Keeps every character's name and description in one place.",
+        "Lets you find any detail in seconds instead of digging through scattered notes.",
+        "Gives you more time to write."], 290)
+    add_info_box(boxes, "What it costs you", [
+        "Nothing. It is free and needs no account.",
+        "Characters are saved only in a file on this computer. Nothing is uploaded.",
+        "Adding your first character takes about 2 minutes."], 290)
+    steps = tk.Frame(content)
+    steps.pack(fill="x", padx=15)
+    add_info_box(steps, "How it works", [
+        "Step 1: Click Add Character, then type a name and a description.",
+        "Step 2: Check your list. Click a name to read its description.",
+        "Step 3: Click Save so your characters are here next time."], 640)
+    tk.Button(content, text="Go to My Characters", command=show_character_list).pack(pady=10)
+    tk.Label(content, text="Already know your way around? Click Characters in the menu above to skip this page.").pack()
 
 
 def show_names():
-    # Shows the name of every character, in the order they were added.
+    # Shows every character's name in the order they were added. Clicking a name opens its details.
     for character in characters:
-        tk.Label(content, text=character["name"], font=("Arial", 14)).pack(anchor="w", padx=40, pady=2)
+        tk.Button(content, text=character["name"], font=("Arial", 14), relief="flat", anchor="w",
+                  fg="#1a4fa3", cursor="hand2",
+                  command=lambda c=character: show_details(c)).pack(anchor="w", padx=40, pady=2)
+    tk.Label(content, text="Click a name to see its description.").pack(anchor="w", padx=40, pady=10)
 
 
 def show_empty_message():
-    # Tells the writer there are no characters yet.
-    tk.Label(content, text="No characters yet.", font=("Arial", 14)).pack(pady=10)
+    # Tells the writer there are no characters yet and shows three steps to get started.
+    tk.Label(content, text="No characters yet.", font=("Arial", 14)).pack(pady=(10, 0))
+    tk.Label(content, text="Get started in 3 steps:", font=("Arial", 12, "bold")).pack(pady=5)
+    tk.Label(content, text="1. Click Add Character (top right).").pack()
+    tk.Label(content, text="2. Type a name and a description, then click Add Character.").pack()
+    tk.Label(content, text="3. Click Save so your characters are here next time.").pack()
+
+
+def show_details(character):
+    # Shows the Character Details screen (screen 4) with the full description of one character.
+    clear_screen()
+    tk.Button(content, text="\u2039 Back to Characters", relief="flat", fg="#1a4fa3", cursor="hand2",
+              command=show_character_list).pack(anchor="w", padx=30, pady=10)
+    tk.Label(content, text=character["name"], font=("Arial", 20)).pack(anchor="w", padx=40)
+    tk.Label(content, text="DESCRIPTION", font=("Arial", 10, "bold")).pack(anchor="w", padx=40, pady=(15, 0))
+    description = character["description"] or "No description was added."
+    tk.Label(content, text=description, wraplength=600, justify="left").pack(anchor="w", padx=40, pady=5)
+    tk.Label(content, text="Click Back to Characters to return to your list.").pack(anchor="w", padx=40, pady=20)
 
 
 def show_character_list():
