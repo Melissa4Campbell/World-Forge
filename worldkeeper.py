@@ -14,6 +14,7 @@ characters = []
 window = tk.Tk()
 window.title("Worldkeeper")
 window.geometry("720x580")
+window.minsize(720, 580)
 
 # The menu bar sits at the top of every screen.
 menu_bar = tk.Frame(window, bg="#e8e8e8")
@@ -41,6 +42,12 @@ def save_characters():
     with open(SAVE_FILE, "w", encoding="utf8") as file:
         json.dump(characters, file, indent=2, ensure_ascii=False)
     update_status(True)
+
+
+def handle_key(event):
+    # Saves the characters when Ctrl+S is pressed. Windows reports the Control key as the number 4.
+    if event.state & 4 and event.keysym.lower() == "s":
+        save_characters()
 
 
 def is_valid(data):
@@ -152,8 +159,10 @@ def show_character_list():
     tk.Label(content, text="My Characters", font=("Arial", 20)).pack(pady=20)
     buttons = tk.Frame(content)
     buttons.pack(anchor="e", padx=40)
-    tk.Button(buttons, text="Save", command=save_characters).pack(side="left", padx=5)
-    tk.Button(buttons, text="Add Character", command=show_add_character).pack(side="left")
+    tk.Button(buttons, text="\U0001F4BE Save", command=save_characters).pack(side="left", padx=5)
+    tk.Button(buttons, text="+ Add Character", bg="#1a4fa3", fg="white",
+              command=show_add_character).pack(side="left")
+    tk.Label(content, text="Save not working? Press Ctrl+S.").pack(anchor="e", padx=40)
     if len(characters) == 0:
         show_empty_message()
     else:
@@ -193,6 +202,7 @@ tk.Label(menu_bar, text="Worldkeeper", font=("Arial", 12, "bold"), bg="#e8e8e8")
 tk.Button(menu_bar, text="Characters", command=show_character_list).pack(side="right", padx=5, pady=5)
 tk.Button(menu_bar, text="Home", command=show_welcome).pack(side="right", padx=5, pady=5)
 
+window.bind("<Key>", handle_key)
 show_welcome()
 load_characters()
 update_status(True)
