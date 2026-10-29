@@ -125,11 +125,11 @@ def show_welcome():
 
 def show_names():
     # Shows every character's name in the order they were added. Clicking a name opens its details.
+    tk.Label(content, text="Click a name to see its description.").pack(anchor="w", padx=40, pady=5)
     for character in characters:
-        tk.Button(content, text=character["name"], font=("Arial", 14), relief="flat", anchor="w",
-                  fg="#1a4fa3", cursor="hand2",
-                  command=lambda c=character: show_details(c)).pack(anchor="w", padx=40, pady=2)
-    tk.Label(content, text="Click a name to see its description.").pack(anchor="w", padx=40, pady=10)
+        tk.Button(content, text=character["name"], font=("Arial", 13), relief="flat", anchor="w",
+                  fg="#1a4fa3", cursor="hand2", borderwidth=0, pady=0,
+                  command=lambda c=character: show_details(c)).pack(anchor="w", padx=40, pady=1)
 
 
 def show_empty_message():
