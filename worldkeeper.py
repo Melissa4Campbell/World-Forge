@@ -13,8 +13,8 @@ characters = []
 
 window = tk.Tk()
 window.title("Worldkeeper")
-window.geometry("720x580")
-window.minsize(720, 580)
+window.geometry("720x620")
+window.minsize(720, 620)
 
 # The menu bar sits at the top of every screen.
 menu_bar = tk.Frame(window, bg="#e8e8e8")
@@ -169,21 +169,66 @@ def show_character_list():
         show_names()
 
 
+def confirm_discard():
+    # Shows the Discard popup (screen 7). Returns True only if the writer chooses Discard.
+    answer = {"discard": False}
+    popup = tk.Toplevel(window)
+    popup.title("Discard this character?")
+    popup.geometry("440x180")
+    popup.transient(window)
+    popup.grab_set()
+    tk.Label(popup, text="Discard this character?", font=("Arial", 14, "bold")).pack(pady=(15, 5))
+    tk.Label(popup, text="You typed something that has not been added. If you discard it, it is gone for good.",
+             wraplength=400).pack(padx=15)
+    buttons = tk.Frame(popup)
+    buttons.pack(pady=15)
+
+    def choose(discard):
+        # Remembers the choice and closes the popup.
+        answer["discard"] = discard
+        popup.destroy()
+
+    tk.Button(buttons, text="Keep Editing", bg="#1a4fa3", fg="white",
+              command=lambda: choose(False)).pack(side="left", padx=10)
+    tk.Button(buttons, text="Discard", bg="#b3261e", fg="white",
+              command=lambda: choose(True)).pack(side="left", padx=10)
+    popup.protocol("WM_DELETE_WINDOW", lambda: choose(False))
+    window.wait_window(popup)
+    return answer["discard"]
+
+
+def leave_add_screen(name_box, description_box):
+    # Leaves the Add Character screen. If something was typed, asks before throwing it away.
+    typed = name_box.get().strip() != "" or description_box.get("1.0", "end").strip() != ""
+    if not typed or confirm_discard():
+        show_character_list()
+
+
 def show_add_character():
     # Shows the Add Character screen (screen 5).
     clear_screen()
-    tk.Label(content, text="Add Character", font=("Arial", 20)).pack(pady=20)
-    tk.Label(content, text="Step 1: Type a name (required)").pack(anchor="w", padx=40)
+    tk.Button(content, text="\u2039 Back to Characters", relief="flat", fg="#1a4fa3", cursor="hand2",
+              command=lambda: leave_add_screen(name_box, description_box)).pack(anchor="w", padx=30, pady=(10, 0))
+    tk.Label(content, text="Add Character", font=("Arial", 20)).pack(pady=(5, 0))
+    tk.Label(content, text="Nothing is added until you click Add Character. You can leave any time with Cancel.").pack(pady=5)
+    tk.Label(content, text="Step 1: Type a name (required)", font=("Arial", 10, "bold")).pack(anchor="w", padx=40)
     name_box = tk.Entry(content, width=50)
-    name_box.pack(anchor="w", padx=40, pady=5)
+    name_box.pack(anchor="w", padx=40, pady=3)
+    tk.Label(content, text="For example: Aria Windmere").pack(anchor="w", padx=40)
     error_label = tk.Label(content, text="", fg="red")
     error_label.pack(anchor="w", padx=40)
-    tk.Label(content, text="Step 2: Type a description").pack(anchor="w", padx=40)
-    description_box = tk.Text(content, width=50, height=6)
-    description_box.pack(anchor="w", padx=40, pady=5)
-    tk.Label(content, text="Step 3: Click Add Character when you are done.").pack(anchor="w", padx=40)
-    tk.Button(content, text="Add Character",
-              command=lambda: add_character(name_box, description_box, error_label)).pack(anchor="w", padx=40, pady=10)
+    tk.Label(content, text="Step 2: Type a description", font=("Arial", 10, "bold")).pack(anchor="w", padx=40)
+    tk.Label(content, text="Who are they? Looks, personality, history, anything you want to remember.").pack(anchor="w", padx=40)
+    description_box = tk.Text(content, width=60, height=5)
+    description_box.pack(anchor="w", padx=40, pady=3)
+    tk.Label(content, text="Step 3: Click Add Character when you are done.", font=("Arial", 10, "bold")).pack(anchor="w", padx=40, pady=(8, 0))
+    buttons = tk.Frame(content)
+    buttons.pack(anchor="w", padx=40, pady=8)
+    tk.Button(buttons, text="+ Add Character", bg="#1a4fa3", fg="white",
+              command=lambda: add_character(name_box, description_box, error_label)).pack(side="left")
+    tk.Button(buttons, text="Cancel",
+              command=lambda: leave_add_screen(name_box, description_box)).pack(side="left", padx=10)
+    tk.Label(content, text="Your new character is not in your save file until you click Save on the Characters page.").pack(anchor="w", padx=40)
 
 
 def add_character(name_box, description_box, error_label):
